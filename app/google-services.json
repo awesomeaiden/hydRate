@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "177559563850",
+    "firebase_url": "https://waterfountainapp-a5a13.firebaseio.com",
+    "project_id": "waterfountainapp-a5a13",
+    "storage_bucket": "waterfountainapp-a5a13.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177559563850:android:a6d8377190bcfe88",
+        "android_client_info": {
+          "package_name": "com.example.waterfountainapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "177559563850-4rn7cujru1s2sbflg854ao7ugsrrklgo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.waterfountainapp",
+            "certificate_hash": "d5ac1ae06771161fbcb991fde719ea7928c32023"
+          }
+        },
+        {
+          "client_id": "177559563850-d9u86j2qcma6mdl1tj2untqa7ga1ok4o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-WtwZdnigoA4EgWqDtbsZHfljemfsPAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "177559563850-d9u86j2qcma6mdl1tj2untqa7ga1ok4o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

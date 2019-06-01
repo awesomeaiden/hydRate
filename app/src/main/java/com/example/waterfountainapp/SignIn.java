@@ -37,8 +37,8 @@ public class SignIn extends AppCompatActivity {
         super.onStart();
 
         // Check to see if user is signed in
-        //FirebaseUser currentUser = fireauth.getCurrentUser();
-        FirebaseUser currentUser = null;
+        FirebaseUser currentUser = fireauth.getCurrentUser();
+        //FirebaseUser currentUser = null;
 
         if (currentUser != null) {
             Intent goHome = new Intent(this, MainActivity.class);
