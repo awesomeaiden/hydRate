@@ -7,8 +7,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
+    private FirebaseAuth fireauth;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -44,6 +53,23 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new HomeFragment()).commit();
+
+        fireauth = FirebaseAuth.getInstance();
+        fireauth.getCurrentUser().reload();
+        final FirebaseUser user = fireauth.getCurrentUser();
+
+        if (!(user.isEmailVerified())) {
+            user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(MainActivity.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Verification email failed to send to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
 }
