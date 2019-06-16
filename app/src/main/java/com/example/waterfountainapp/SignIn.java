@@ -42,6 +42,7 @@ public class SignIn extends AppCompatActivity {
 
         if (currentUser != null) {
             Intent goHome = new Intent(this, MainActivity.class);
+            // Get user information and put extra information in intent
             startActivity(goHome);
             Toast.makeText(SignIn.this, "Authentication success", Toast.LENGTH_SHORT).show();
         }
@@ -60,6 +61,7 @@ public class SignIn extends AppCompatActivity {
                             FirebaseUser user = fireauth.getCurrentUser();
                             Toast.makeText(SignIn.this, "Authentication success", Toast.LENGTH_SHORT).show();
                             Intent goHome = new Intent(SignIn.this, MainActivity.class);
+                            // Get user information and put extra information in intent
                             startActivity(goHome);
                         } else {
                             Log.w("Login", "signInWithEmail:failure");
@@ -81,6 +83,8 @@ public class SignIn extends AppCompatActivity {
                             Log.d("Login", "createWithEmail:success");
                             FirebaseUser user = fireauth.getCurrentUser();
                             Toast.makeText(SignIn.this, "Create Account success", Toast.LENGTH_SHORT).show();
+                            // Make an intent with all user information
+                            // Start activity intent to go to main
                         } else {
                             Log.w("Login", "createWithEmail:failure");
                             Toast.makeText(SignIn.this, "Create Account failed", Toast.LENGTH_SHORT).show();
