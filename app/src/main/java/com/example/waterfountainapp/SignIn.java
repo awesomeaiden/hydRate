@@ -12,14 +12,19 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignIn extends AppCompatActivity {
     private EditText email;
     private EditText pass;
     private FirebaseAuth fireauth;
+    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +47,6 @@ public class SignIn extends AppCompatActivity {
 
         if (currentUser != null) {
             Intent goHome = new Intent(this, MainActivity.class);
-            // Get user information and put extra information in intent
             startActivity(goHome);
             Toast.makeText(SignIn.this, "Authentication success", Toast.LENGTH_SHORT).show();
         }
@@ -51,46 +55,57 @@ public class SignIn extends AppCompatActivity {
     public void onClickLogin(View view) {
         String eaddress = email.getText().toString();
         String password = pass.getText().toString();
-
-        fireauth.signInWithEmailAndPassword(eaddress, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("Login", "signInWithEmail:success");
-                            FirebaseUser user = fireauth.getCurrentUser();
-                            Toast.makeText(SignIn.this, "Authentication success", Toast.LENGTH_SHORT).show();
-                            Intent goHome = new Intent(SignIn.this, MainActivity.class);
-                            // Get user information and put extra information in intent
-                            startActivity(goHome);
-                        } else {
-                            Log.w("Login", "signInWithEmail:failure");
-                            Toast.makeText(SignIn.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+        if ((eaddress.length() != 0) && (password.length() != 0)) {
+            fireauth.signInWithEmailAndPassword(eaddress, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                Log.d("Login", "signInWithEmail:success");
+                                FirebaseUser user = fireauth.getCurrentUser();
+                                Toast.makeText(SignIn.this, "Authentication success", Toast.LENGTH_SHORT).show();
+                                Intent goHome = new Intent(SignIn.this, MainActivity.class);
+                                startActivity(goHome);
+                            } else {
+                                Log.w("Login", "signInWithEmail:failure");
+                                Toast.makeText(SignIn.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                                FirebaseException e = (FirebaseAuthException)task.getException();
+                                Toast.makeText(SignIn.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
                         }
-                    }
-                });
+                    });
+        }
+
     }
 
     public void onClickSignup(View view) {
-        String eaddress = email.getText().toString();
+        final String eaddress = email.getText().toString();
         String password = pass.getText().toString();
-
-        fireauth.createUserWithEmailAndPassword(eaddress, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("Login", "createWithEmail:success");
-                            FirebaseUser user = fireauth.getCurrentUser();
-                            Toast.makeText(SignIn.this, "Create Account success", Toast.LENGTH_SHORT).show();
-                            // Make an intent with all user information
-                            // Start activity intent to go to main
-                        } else {
-                            Log.w("Login", "createWithEmail:failure");
-                            Toast.makeText(SignIn.this, "Create Account failed", Toast.LENGTH_SHORT).show();
+        if ((eaddress.length() != 0) && (password.length() != 0)) {
+            fireauth.createUserWithEmailAndPassword(eaddress, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                Log.d("Login", "createWithEmail:success");
+                                FirebaseUser currentUser = fireauth.getCurrentUser();
+                                Toast.makeText(SignIn.this, "Create Account success", Toast.LENGTH_SHORT).show();
+                                database = FirebaseDatabase.getInstance().getReference();
+                                database.child("users").child(currentUser.getUid()).child("email").setValue(eaddress);
+                                database.child("users").child(currentUser.getUid()).child("username").setValue("");
+                                // Start activity intent to go to main
+                                Intent goHome = new Intent(SignIn.this, MainActivity.class);
+                                startActivity(goHome);
+                            } else {
+                                Log.w("Login", "createWithEmail:failure");
+                                Toast.makeText(SignIn.this, "Create Account failed", Toast.LENGTH_SHORT).show();
+                                FirebaseException e = (FirebaseAuthException)task.getException();
+                                Toast.makeText(SignIn.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
                         }
-                    }
-                });
+                    });
+        }
+
     }
 
 }
