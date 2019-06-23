@@ -1,6 +1,7 @@
 package com.example.waterfountainapp;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -48,5 +49,10 @@ public class FountainsFragment extends Fragment implements OnMapReadyCallback {
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         googleMap.addMarker(new MarkerOptions().position(new LatLng(40.4259, -86.9081)).title("Purdue").snippet("Home of the Boilermakers"));
+    }
+
+    public void onClickAddFountain() {
+        Intent gotoCreateFountain = new Intent(getContext(), CreateFountain.class);
+        startActivity(gotoCreateFountain);
     }
 }
