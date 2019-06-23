@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -23,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class SignIn extends AppCompatActivity {
     private EditText email;
     private EditText pass;
+    private EditText user;
     private FirebaseAuth fireauth;
     private DatabaseReference database;
 
@@ -34,7 +34,8 @@ public class SignIn extends AppCompatActivity {
         fireauth = FirebaseAuth.getInstance();
 
         email = findViewById(R.id.loginEmail);
-        pass = findViewById(R.id.loginPass);
+        pass = findViewById(R.id.loginUser);
+        user = findViewById(R.id.loginUser);
     }
 
     @Override
@@ -81,6 +82,7 @@ public class SignIn extends AppCompatActivity {
     public void onClickSignup(View view) {
         final String eaddress = email.getText().toString();
         String password = pass.getText().toString();
+        final String username = user.getText().toString();
         if ((eaddress.length() != 0) && (password.length() != 0)) {
             fireauth.createUserWithEmailAndPassword(eaddress, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -91,8 +93,9 @@ public class SignIn extends AppCompatActivity {
                                 FirebaseUser currentUser = fireauth.getCurrentUser();
                                 Toast.makeText(SignIn.this, "Create Account success", Toast.LENGTH_SHORT).show();
                                 database = FirebaseDatabase.getInstance().getReference();
+                                String userid = currentUser.getUid();
                                 database.child("users").child(currentUser.getUid()).child("email").setValue(eaddress);
-                                database.child("users").child(currentUser.getUid()).child("username").setValue("");
+                                database.child("users").child(currentUser.getUid()).child("username").setValue(username);
                                 // Start activity intent to go to main
                                 Intent goHome = new Intent(SignIn.this, MainActivity.class);
                                 startActivity(goHome);
