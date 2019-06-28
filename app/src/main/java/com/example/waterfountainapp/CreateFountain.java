@@ -10,13 +10,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class CreateFountain extends AppCompatActivity {
+public class CreateFountain extends AppCompatActivity implements OnMapReadyCallback {
 
     ImageView ftnPic;
 
@@ -29,6 +32,10 @@ public class CreateFountain extends AppCompatActivity {
 
         Button btnPic = findViewById(R.id.btnPic);
         ftnPic = findViewById(R.id.fountainPic);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     public void onClickPhoto(View view) {
@@ -41,5 +48,13 @@ public class CreateFountain extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Bitmap bitmap = (Bitmap)data.getExtras().get("data");
         ftnPic.setImageBitmap(bitmap);
+    }
+
+    public void onMapReady(GoogleMap googleMap) {
+        MapsInitializer.initialize(getBaseContext());
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        googleMap.addMarker(new MarkerOptions().position(new LatLng(40.4259, -86.9081)).title("Purdue").snippet("Home of the Boilermakers"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(40.4259, -86.9081)));
     }
 }
