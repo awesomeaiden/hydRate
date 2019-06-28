@@ -34,7 +34,7 @@ public class SignIn extends AppCompatActivity {
         fireauth = FirebaseAuth.getInstance();
 
         email = findViewById(R.id.loginEmail);
-        pass = findViewById(R.id.loginUser);
+        pass = findViewById(R.id.loginPass);
         user = findViewById(R.id.loginUser);
     }
 
