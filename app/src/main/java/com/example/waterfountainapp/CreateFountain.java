@@ -2,8 +2,11 @@ package com.example.waterfountainapp;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +21,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CreateFountain extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -38,16 +46,22 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         mapFragment.getMapAsync(this);
     }
 
-    public void onClickPhoto(View view) {
+    public void onClickPhoto(View view) throws IOException {
         Intent picintent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        String picName = "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File storageDir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
+        File picImage = File.createTempFile(picName, ".jpg", storageDir);
+        Uri uri = FileProvider.getUriForFile(CreateFountain.this, BuildConfig.APPLICATION_ID + ".provider", picImage);
+        picintent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        picintent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(picintent, 0);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Bitmap bitmap = (Bitmap)data.getExtras().get("data");
-        ftnPic.setImageBitmap(bitmap);
+        Uri image = data.getData();
+        ftnPic.setImageURI(image);
     }
 
     public void onMapReady(GoogleMap googleMap) {
