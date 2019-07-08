@@ -1,6 +1,7 @@
 package com.example.waterfountainapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.ExifInterface;
@@ -14,7 +15,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,12 +30,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class CreateFountain extends AppCompatActivity implements OnMapReadyCallback {
 
-    ImageView ftnPic;
-    private final int REQUEST_CODE = 100;
-    public Uri picUri;
+    private ImageView ftnPic;
+    private Uri picUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +44,17 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         // Take a picture, select location, set ratings on slider for taste, temp, press,
         // mark exact location, what floor, checkbox any special features, submit for review
 
-        Button btnPic = findViewById(R.id.btnPic);
+//        Button btnPic = findViewById(R.id.btnPic);
         ftnPic = findViewById(R.id.fountainPic);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        Objects.requireNonNull(mapFragment).getMapAsync(this);
     }
 
     public void onClickPhoto(View view) throws IOException {
         Intent picintent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        String picName = "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        @SuppressLint("SimpleDateFormat") String picName = "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File storageDir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
@@ -65,6 +65,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
             picintent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             picintent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             picUri = uri;
+            int REQUEST_CODE = 100;
             startActivityForResult(picintent, REQUEST_CODE);
         }
     }

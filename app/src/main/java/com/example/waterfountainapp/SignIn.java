@@ -19,6 +19,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Objects;
+
 public class SignIn extends AppCompatActivity {
     private EditText email;
     private EditText pass;
@@ -63,7 +65,7 @@ public class SignIn extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 Log.d("Login", "signInWithEmail:success");
-                                FirebaseUser user = fireauth.getCurrentUser();
+//                                FirebaseUser user = fireauth.getCurrentUser();
                                 Toast.makeText(SignIn.this, "Authentication success", Toast.LENGTH_SHORT).show();
                                 Intent goHome = new Intent(SignIn.this, MainActivity.class);
                                 startActivity(goHome);
@@ -71,7 +73,7 @@ public class SignIn extends AppCompatActivity {
                                 Log.w("Login", "signInWithEmail:failure");
                                 Toast.makeText(SignIn.this, "Authentication failed", Toast.LENGTH_SHORT).show();
                                 FirebaseException e = (FirebaseAuthException)task.getException();
-                                Toast.makeText(SignIn.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(SignIn.this, Objects.requireNonNull(e).getMessage(), Toast.LENGTH_LONG).show();
                             }
                         }
                     });
@@ -93,8 +95,8 @@ public class SignIn extends AppCompatActivity {
                                 FirebaseUser currentUser = fireauth.getCurrentUser();
                                 Toast.makeText(SignIn.this, "Create Account success", Toast.LENGTH_SHORT).show();
                                 database = FirebaseDatabase.getInstance().getReference();
-                                String userid = currentUser.getUid();
-                                database.child("users").child(currentUser.getUid()).child("email").setValue(eaddress);
+//                                String userid = currentUser.getUid();
+                                database.child("users").child(Objects.requireNonNull(currentUser).getUid()).child("email").setValue(eaddress);
                                 database.child("users").child(currentUser.getUid()).child("username").setValue(username);
                                 // Start activity intent to go to main
                                 Intent goHome = new Intent(SignIn.this, MainActivity.class);
@@ -103,7 +105,7 @@ public class SignIn extends AppCompatActivity {
                                 Log.w("Login", "createWithEmail:failure");
                                 Toast.makeText(SignIn.this, "Create Account failed", Toast.LENGTH_SHORT).show();
                                 FirebaseException e = (FirebaseAuthException)task.getException();
-                                Toast.makeText(SignIn.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(SignIn.this, Objects.requireNonNull(e).getMessage(), Toast.LENGTH_LONG).show();
                             }
                         }
                     });
