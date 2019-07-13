@@ -1,4 +1,4 @@
-package com.example.waterfountainapp;
+package com.example.hydRate;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;

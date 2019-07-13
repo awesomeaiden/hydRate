@@ -1,4 +1,4 @@
-package com.example.waterfountainapp;
+package com.example.hydRate;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -16,12 +16,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -36,6 +38,9 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
 
     private ImageView ftnPic;
     private Uri picUri;
+    private int markerStatus;
+    public LatLng markerLocation;
+    public boolean picStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +49,8 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         // Take a picture, select location, set ratings on slider for taste, temp, press,
         // mark exact location, what floor, checkbox any special features, submit for review
 
-//        Button btnPic = findViewById(R.id.btnPic);
         ftnPic = findViewById(R.id.fountainPic);
+        picStatus = false;
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -70,6 +75,21 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
+    public void onClickContinue(View view) {
+        if ((markerLocation != null) && (picStatus == true)) {
+            setContentView(R.layout.activity_create_fountain_rate);
+        }
+        else if ((markerLocation == null) && (picStatus == false)) {
+            Toast.makeText(this, "Please take a picture of the fountain and set its location", Toast.LENGTH_LONG).show();
+        }
+        else if (markerLocation == null) {
+            Toast.makeText(this, "Please set fountain location", Toast.LENGTH_LONG).show();
+        }
+        else if (picStatus == false) {
+            Toast.makeText(this, "Please take a picture of the fountain", Toast.LENGTH_LONG).show();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -78,7 +98,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
             ExifInterface exif = new ExifInterface(ftnInputStream);
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
             Display display = getWindowManager().getDefaultDisplay();
-            ftnPic.setMaxHeight(display.getHeight() / 5);
+            ftnPic.setMaxHeight((int) (display.getHeight() / 3.75));
             ftnPic.setMaxWidth((int) (display.getWidth() / 1.1));
             ftnPic.setImageURI(picUri);
             if (orientation != 1) {
@@ -86,17 +106,33 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
                 else if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {ftnPic.setRotation(90);}
                 else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {ftnPic.setRotation(270);}
             }
-
+            picStatus = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         MapsInitializer.initialize(getBaseContext());
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(40.4259, -86.9081)).title("Purdue").snippet("Home of the Boilermakers"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(40.4259, -86.9081)));
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(new LatLng(40.4259, -86.9081), 18, 0, 0)));
+
+        markerStatus = 0;
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if (markerStatus == 0) {
+                    googleMap.addMarker(new MarkerOptions().position(latLng).title("Add foutain").snippet("Add a fountain at this location"));
+                    markerLocation = latLng;
+                    markerStatus = 1;
+                }
+                else {
+                    googleMap.clear();
+                    markerStatus = 0;
+                    markerLocation = null;
+                }
+            }
+        });
     }
 }

@@ -1,4 +1,4 @@
-package com.example.waterfountainapp;
+package com.example.hydRate;
 
 import org.junit.Test;
 

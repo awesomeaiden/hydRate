@@ -15,24 +15,35 @@
         android:layout_marginEnd="8dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/picture_of_the_fountain"
-        app:layout_constraintBottom_toTopOf="@+id/btnPic"
+        app:layout_constraintBottom_toTopOf="@+id/continueBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
 
     <Button
+        android:id="@+id/continueBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="8dp"
+        android:onClick="onClickContinue"
+        android:text="@string/ftn_continue"
+        app:layout_constraintBottom_toTopOf="@+id/map"
+        app:layout_constraintStart_toStartOf="@+id/addFtnRightGuide"
+        app:layout_constraintEnd_toStartOf="@+id/addFtnRightGuide" />
+
+    <Button
         android:id="@+id/btnPic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="350dp"
+        android:layout_marginBottom="8dp"
         android:onClick="onClickPhoto"
         android:text="@string/take_picture"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fountainPic" />
+        app:layout_constraintBottom_toTopOf="@+id/map"
+        app:layout_constraintStart_toStartOf="@+id/addFtnLeftGuide"
+        app:layout_constraintEnd_toStartOf="@+id/addFtnLeftGuide"
+        tools:layout_editor_absoluteX="55dp" />
 
     <fragment
         android:id="@+id/map"
@@ -46,7 +57,47 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnPic"
+        app:layout_constraintTop_toBottomOf="@+id/addFtnMidGuide"
         tools:context="com.example.mapwithmarker.MapsMarkerActivity" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/addFtnMidGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="326dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/addFtnCtrGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/set_location"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/addFtnMidGuide" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/addFtnLeftGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/addFtnRightGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".75" />
 
 </android.support.constraint.ConstraintLayout>

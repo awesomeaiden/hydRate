@@ -1,4 +1,4 @@
-package com.example.waterfountainapp;
+package com.example.hydRate;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = new HomeFragment();
                     break;
                 case R.id.navigation_dashboard:
+                    Toast.makeText(getBaseContext(), "Loading map...", Toast.LENGTH_SHORT).show();
                     selectedFragment = new FountainsFragment();
                     break;
                 case R.id.navigation_notifications:

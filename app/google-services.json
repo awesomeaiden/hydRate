@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:177559563850:android:a6d8377190bcfe88",
         "android_client_info": {
-          "package_name": "com.example.waterfountainapp"
+          "package_name": "com.example.hydRate"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "177559563850-4rn7cujru1s2sbflg854ao7ugsrrklgo.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.waterfountainapp",
+            "package_name": "com.example.hydRate",
             "certificate_hash": "d5ac1ae06771161fbcb991fde719ea7928c32023"
           }
         },
