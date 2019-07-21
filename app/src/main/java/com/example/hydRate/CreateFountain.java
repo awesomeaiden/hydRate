@@ -4,6 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,9 +40,12 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
 
     private ImageView ftnPic;
     private Uri picUri;
+    String picPath;
+    Bitmap ftnPicBitmap;
     private int markerStatus;
     public LatLng markerLocation;
     public boolean picStatus;
+    static final int REQUEST_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,21 +63,17 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
     }
 
     public void onClickPhoto(View view) throws IOException {
-        Intent picintent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         @SuppressLint("SimpleDateFormat") String picName = "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File storageDir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-        }
-        else {
-            File picImage = File.createTempFile(picName, ".jpg", storageDir);
-            Uri uri = FileProvider.getUriForFile(CreateFountain.this, BuildConfig.APPLICATION_ID + ".provider", picImage);
-            picintent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-            picintent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            picUri = uri;
-            int REQUEST_CODE = 100;
-            startActivityForResult(picintent, REQUEST_CODE);
-        }
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+//                dispatchTakePictureIntent();
+//            }
+//        }
+//        else {
+//            dispatchTakePictureIntent();
+//        }
+        dispatchTakePictureIntent();
     }
 
     public void onClickContinue(View view) {
@@ -94,21 +95,76 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
-            InputStream ftnInputStream = getContentResolver().openInputStream(picUri);
-            ExifInterface exif = new ExifInterface(ftnInputStream);
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+            // Confirm that file exists
+            File ftnPicFile = new File(picPath);
+            if (ftnPicFile.exists()) {
+                // Create bitmap from file
+                ftnPicBitmap = BitmapFactory.decodeFile(picPath);
+            }
+            // Set max dimensions of the photo based on screen size
             Display display = getWindowManager().getDefaultDisplay();
             ftnPic.setMaxHeight((int) (display.getHeight() / 3.75));
             ftnPic.setMaxWidth((int) (display.getWidth() / 1.1));
-            ftnPic.setImageURI(picUri);
+            // Set image bitmap
+            ftnPic.setImageBitmap(ftnPicBitmap);
+            // Correct for orientation of photo
+            correctImageOrientation(ftnPicFile, ftnPic);
+            picStatus = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void correctImageOrientation(File picFile, ImageView picView) throws IOException {
+        try {
+            ExifInterface exif = new ExifInterface(picFile.getAbsolutePath());
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
             if (orientation != 1) {
                 if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {ftnPic.setRotation(180);}
                 else if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {ftnPic.setRotation(90);}
                 else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {ftnPic.setRotation(270);}
             }
-            picStatus = true;
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        picPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Toast.makeText(this, "Error occured while creating the image file", Toast.LENGTH_LONG).show();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.example.android.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_CODE);
+            }
         }
     }
 
