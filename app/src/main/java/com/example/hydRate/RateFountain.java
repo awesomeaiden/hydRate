@@ -21,6 +21,7 @@ public class RateFountain extends AppCompatActivity {
         tasteRatingBar = findViewById(R.id.ratingBarTaste);
         tempRatingBar = findViewById(R.id.ratingBarTemperature);
         pressRatingBar = findViewById(R.id.ratingBarPressure);
+        bottleFiller = findViewById(R.id.bottleFillCheckBox);
     }
 
     public void onClickRate(View view) {

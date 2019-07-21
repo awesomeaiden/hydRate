@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
@@ -25,6 +26,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +50,8 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
     public LatLng markerLocation;
     public boolean picStatus;
     static final int REQUEST_CODE = 100;
+    private DatabaseReference database;
+    private StorageReference storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +66,9 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         Objects.requireNonNull(mapFragment).getMapAsync(this);
+
+        database = FirebaseDatabase.getInstance().getReference();
+        storage = FirebaseStorage.getInstance().getReference();
     }
 
     public void onClickTakePicture(View view) {
@@ -64,6 +77,26 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
 
     public void onClickCreate(View view) {
         if ((markerLocation != null) && (picStatus == true)) {
+            // Add fountain identifiers to database if picture and location are present
+            String ftnID = "ftn_" + markerLocation;
+            database.child("fountains").child(ftnID).child("location").setValue(markerLocation);
+            database.child("fountains").child(ftnID).child("picture").setValue(picPath);
+
+            // Upload picture to database with picPath as unique identifier
+            StorageReference ftnPicReference = storage.child(picPath);
+            Uri ftnPicFile = Uri.fromFile(new File(picPath));
+            ftnPicReference.putFile(ftnPicFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(CreateFountain.this, "Fountain successfully added!", Toast.LENGTH_LONG).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(CreateFountain.this, "Failed to add fountain, please try again", Toast.LENGTH_LONG).show();
+                }
+            });
+
             // Pop up dialog and ask if the user would like to rate the fountain they just added or not
             askRate();
         }
@@ -141,7 +174,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
