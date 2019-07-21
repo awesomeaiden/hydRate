@@ -1,9 +1,8 @@
 package com.example.hydRate;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
@@ -11,8 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
@@ -31,7 +28,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
@@ -62,23 +58,14 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         Objects.requireNonNull(mapFragment).getMapAsync(this);
     }
 
-    public void onClickPhoto(View view) throws IOException {
-        @SuppressLint("SimpleDateFormat") String picName = "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-//                dispatchTakePictureIntent();
-//            }
-//        }
-//        else {
-//            dispatchTakePictureIntent();
-//        }
+    public void onClickTakePicture(View view) {
         dispatchTakePictureIntent();
     }
 
-    public void onClickContinue(View view) {
+    public void onClickCreate(View view) {
         if ((markerLocation != null) && (picStatus == true)) {
-            setContentView(R.layout.activity_create_fountain_rate);
+            // Pop up dialog and ask if the user would like to rate the fountain they just added or not
+            askRate();
         }
         else if ((markerLocation == null) && (picStatus == false)) {
             Toast.makeText(this, "Please take a picture of the fountain and set its location", Toast.LENGTH_LONG).show();
@@ -89,6 +76,29 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         else if (picStatus == false) {
             Toast.makeText(this, "Please take a picture of the fountain", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void askRate() {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        Intent goToRate = new Intent(CreateFountain.this, RateFountain.class);
+                        startActivity(goToRate);
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        Intent goToFountains = new Intent(CreateFountain.this, MainActivity.class);
+                        startActivity(goToFountains);
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Would you like to add a rating for this new fountain?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("Not yet", dialogClickListener).show();
     }
 
     @Override
@@ -108,14 +118,14 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
             // Set image bitmap
             ftnPic.setImageBitmap(ftnPicBitmap);
             // Correct for orientation of photo
-            correctImageOrientation(ftnPicFile, ftnPic);
+            correctImageOrientation(ftnPicFile);
             picStatus = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void correctImageOrientation(File picFile, ImageView picView) throws IOException {
+    private void correctImageOrientation(File picFile) throws IOException {
         try {
             ExifInterface exif = new ExifInterface(picFile.getAbsolutePath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
