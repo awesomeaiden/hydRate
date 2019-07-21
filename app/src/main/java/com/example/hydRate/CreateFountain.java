@@ -98,7 +98,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
             });
 
             // Pop up dialog and ask if the user would like to rate the fountain they just added or not
-            askRate();
+            askRate(ftnID);
         }
         else if ((markerLocation == null) && (picStatus == false)) {
             Toast.makeText(this, "Please take a picture of the fountain and set its location", Toast.LENGTH_LONG).show();
@@ -111,13 +111,14 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
-    public void askRate() {
+    public void askRate(final String fountainID) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
                         Intent goToRate = new Intent(CreateFountain.this, RateFountain.class);
+                        goToRate.putExtra("fountainID", fountainID);
                         startActivity(goToRate);
                         break;
 
