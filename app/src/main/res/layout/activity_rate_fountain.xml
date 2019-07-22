@@ -113,6 +113,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
+        android:onClick="onClickRate"
         android:text="Add Rating"
         app:layout_constraintEnd_toStartOf="@+id/ftnRateMid"
         app:layout_constraintHorizontal_bias="0.473"

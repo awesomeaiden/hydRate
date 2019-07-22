@@ -45,6 +45,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
     private ImageView ftnPic;
     private Uri picUri;
     String picPath;
+    String picID;
     Bitmap ftnPicBitmap;
     private int markerStatus;
     public LatLng markerLocation;
@@ -52,6 +53,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
     static final int REQUEST_CODE = 100;
     private DatabaseReference database;
     private StorageReference storage;
+    private String ftnID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,16 +78,21 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
     }
 
     public void onClickCreate(View view) {
+        // Add fountain identifiers to database if picture and location are present
         if ((markerLocation != null) && (picStatus == true)) {
-            // Add fountain identifiers to database if picture and location are present
-            String ftnID = "ftn_" + markerLocation;
+            // Create unique fountainID seeded by markerLocation
+            ftnID = "ftn_" + markerLocation;
+            // Remove problematic characters from ftnID
+            ftnID = ftnID.replace(".", "_").replace(" ", "_").replace("/", "_");
+            // Create picID seeded by name of picture
+            picID = "ftnPics/" + ftnID + "/" + picPath.split("/")[picPath.split("/").length - 1];
+            // Add fountain to database with location and picture reference
             database.child("fountains").child(ftnID).child("location").setValue(markerLocation);
-            database.child("fountains").child(ftnID).child("picture").setValue(picPath);
+            database.child("fountains").child(ftnID).child("picture").setValue(picID);
 
             // Upload picture to database with picPath as unique identifier
-            StorageReference ftnPicReference = storage.child(picPath);
             Uri ftnPicFile = Uri.fromFile(new File(picPath));
-            ftnPicReference.putFile(ftnPicFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            storage.child(picID).putFile(ftnPicFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Toast.makeText(CreateFountain.this, "Fountain successfully added!", Toast.LENGTH_LONG).show();
@@ -93,6 +100,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
+                    e.printStackTrace();
                     Toast.makeText(CreateFountain.this, "Failed to add fountain, please try again", Toast.LENGTH_LONG).show();
                 }
             });
