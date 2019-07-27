@@ -69,27 +69,28 @@ public class FountainsFragment extends Fragment implements OnMapReadyCallback {
         MapsInitializer.initialize(Objects.requireNonNull(getContext()));
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        loadFountains(googleMap, database);
+        // Get location and set camera to that location at default zoom
         setLocation(googleMap);
+        // loadFountains in this area
+        loadFountains(googleMap, database);
 
-        // When someone zooms by a considerable amount, reload fountains
+        // When the visible area changes considerably and fountains should be loaded, reload them
 
+        // Mock markers
         googleMap.addMarker(new MarkerOptions().position(new LatLng(40.4259, -86.9081)).title("Purdue").snippet("Home of the Boilermakers"));
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(new LatLng(40.4259, -86.9081), 18, 0, 0)));
     }
 
     public void loadFountains(final GoogleMap googleMap, final DatabaseReference database) {
-        // Get parameters to pass to getMapFountains
-        CameraPosition position = googleMap.getCameraPosition();
-        LatLng location = position.target;
-        Float zoom = position.zoom;
-        Query query = database.child("fountains").orderByChild("location/latitude").startAt(40).endAt(41);
+        // Get fountains from the database in this area
+        Query query = database.child("fountains").orderByChild("location/latitude");
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 LatLng ftnlocation;
                 String ftnname = "Water Fountain";
                 for (DataSnapshot fountain: dataSnapshot.getChildren()) {
+                    // Put fountains on the map
                     ftnlocation = new LatLng(fountain.child("location").child("latitude").getValue(Double.class), fountain.child("location").child("longitude").getValue(Double.class));
                     googleMap.addMarker(new MarkerOptions().position(ftnlocation).title(ftnname));
                 }
@@ -102,6 +103,7 @@ public class FountainsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void setLocation(GoogleMap googleMap) {
-
+        // Get user location
+        // Set camera position to the user's location at the default zoom level
     }
 }
