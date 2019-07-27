@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,14 +19,27 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Objects;
 
 public class FountainsFragment extends Fragment implements OnMapReadyCallback {
 
+    private DatabaseReference database;
+    private StorageReference storage;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        database = FirebaseDatabase.getInstance().getReference();
+        storage = FirebaseStorage.getInstance().getReference();
         return inflater.inflate(R.layout.fragment_fountains, container, false);
     }
 
@@ -55,7 +69,39 @@ public class FountainsFragment extends Fragment implements OnMapReadyCallback {
         MapsInitializer.initialize(Objects.requireNonNull(getContext()));
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
+        loadFountains(googleMap, database);
+        setLocation(googleMap);
+
+        // When someone zooms by a considerable amount, reload fountains
+
         googleMap.addMarker(new MarkerOptions().position(new LatLng(40.4259, -86.9081)).title("Purdue").snippet("Home of the Boilermakers"));
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(new LatLng(40.4259, -86.9081), 18, 0, 0)));
+    }
+
+    public void loadFountains(final GoogleMap googleMap, final DatabaseReference database) {
+        // Get parameters to pass to getMapFountains
+        CameraPosition position = googleMap.getCameraPosition();
+        LatLng location = position.target;
+        Float zoom = position.zoom;
+        Query query = database.child("fountains").orderByChild("location/latitude").startAt(40).endAt(41);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                LatLng ftnlocation;
+                String ftnname = "Water Fountain";
+                for (DataSnapshot fountain: dataSnapshot.getChildren()) {
+                    ftnlocation = new LatLng(fountain.child("location").child("latitude").getValue(Double.class), fountain.child("location").child("longitude").getValue(Double.class));
+                    googleMap.addMarker(new MarkerOptions().position(ftnlocation).title(ftnname));
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d("error", String.valueOf(databaseError));
+            }
+        });
+    }
+
+    public void setLocation(GoogleMap googleMap) {
+
     }
 }
