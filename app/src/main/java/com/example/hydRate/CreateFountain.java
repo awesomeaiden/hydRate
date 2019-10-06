@@ -43,17 +43,14 @@ import java.util.Objects;
 public class CreateFountain extends AppCompatActivity implements OnMapReadyCallback {
 
     private ImageView ftnPic;
-    private Uri picUri;
-    String picPath;
-    String picID;
     Bitmap ftnPicBitmap;
+    private String picPath;
     private int markerStatus;
     public LatLng markerLocation;
     public boolean picStatus;
     static final int REQUEST_CODE = 100;
     private DatabaseReference database;
     private StorageReference storage;
-    private String ftnID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,19 +77,21 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
     public void onClickCreate(View view) {
         // Add fountain identifiers to database if picture and location are present
         if ((markerLocation != null) && (picStatus == true)) {
+            // Create new fountain object
+            Fountain ftn = new Fountain();
             // Create unique fountainID seeded by markerLocation
-            ftnID = "ftn_" + markerLocation;
+            ftn.setFtnID("ftn_" + markerLocation);
             // Remove problematic characters from ftnID
-            ftnID = ftnID.replace(".", "_").replace(" ", "_").replace("/", "_");
+            ftn.setFtnID(ftn.getFtnID().replace(".", "_").replace(" ", "_").replace("/", "_"));
             // Create picID seeded by name of picture
-            picID = "ftnPics/" + ftnID + "/" + picPath.split("/")[picPath.split("/").length - 1];
+            ftn.setPicID("ftnPics/" + ftn.getFtnID() + "/" + picPath.split("/")[picPath.split("/").length - 1]);
             // Add fountain to database with location and picture reference
-            database.child("fountains").child(ftnID).child("location").setValue(markerLocation);
-            database.child("fountains").child(ftnID).child("picture").setValue(picID);
+            database.child("fountains").child(ftn.getFtnID()).child("location").setValue(markerLocation);
+            database.child("fountains").child(ftn.getFtnID()).child("picture").setValue(ftn.getPicID());
 
             // Upload picture to database with picPath as unique identifier
             Uri ftnPicFile = Uri.fromFile(new File(picPath));
-            storage.child(picID).putFile(ftnPicFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            storage.child(ftn.getPicID()).putFile(ftnPicFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Toast.makeText(CreateFountain.this, "Fountain successfully added!", Toast.LENGTH_LONG).show();
@@ -106,7 +105,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
             });
 
             // Pop up dialog and ask if the user would like to rate the fountain they just added or not
-            askRate(ftnID);
+            askRate(ftn.getFtnID());
         }
         else if ((markerLocation == null) && (picStatus == false)) {
             Toast.makeText(this, "Please take a picture of the fountain and set its location", Toast.LENGTH_LONG).show();

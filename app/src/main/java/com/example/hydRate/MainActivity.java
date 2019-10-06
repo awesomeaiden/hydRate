@@ -53,18 +53,21 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new HomeFragment()).commit();
 
+        // Initialize user
         FirebaseAuth fireauth = FirebaseAuth.getInstance();
         Objects.requireNonNull(fireauth.getCurrentUser()).reload();
-        final FirebaseUser user = fireauth.getCurrentUser();
+        User user = new User();
+        final FirebaseUser fbUser = fireauth.getCurrentUser();
+        user.setFirebaseUser(fbUser);
 
-        if (!(user.isEmailVerified())) {
-            user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener() {
+        if (!(user.getFirebaseUser().isEmailVerified())) {
+            user.getFirebaseUser().sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener() {
                 @Override
                 public void onComplete(@NonNull Task task) {
                     if (task.isSuccessful()) {
-                        Toast.makeText(MainActivity.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Verification email sent to " + fbUser.getEmail(), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(MainActivity.this, "Verification email failed to send to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Verification email failed to send to " + fbUser.getEmail(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });

@@ -87,12 +87,12 @@ public class FountainsFragment extends Fragment implements OnMapReadyCallback {
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                LatLng ftnlocation;
-                String ftnname = "Water Fountain";
                 for (DataSnapshot fountain: dataSnapshot.getChildren()) {
+                    Fountain ftn = new Fountain();
+                    ftn.setName("Water Fountain");
                     // Put fountains on the map
-                    ftnlocation = new LatLng(fountain.child("location").child("latitude").getValue(Double.class), fountain.child("location").child("longitude").getValue(Double.class));
-                    googleMap.addMarker(new MarkerOptions().position(ftnlocation).title(ftnname));
+                    ftn.setLocation(new LatLng(fountain.child("location").child("latitude").getValue(Double.class), fountain.child("location").child("longitude").getValue(Double.class)));
+                    googleMap.addMarker(new MarkerOptions().position(ftn.getLocation()).title(ftn.getName()));
                 }
             }
             @Override

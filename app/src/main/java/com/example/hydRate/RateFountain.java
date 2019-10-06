@@ -20,8 +20,6 @@ public class RateFountain extends AppCompatActivity {
     RatingBar tempRatingBar;
     RatingBar pressRatingBar;
     CheckBox bottleFiller;
-    String fountainID;
-    String ratingID;
     private DatabaseReference database;
 
     @Override
@@ -34,29 +32,30 @@ public class RateFountain extends AppCompatActivity {
         pressRatingBar = findViewById(R.id.ratingBarPressure);
         bottleFiller = findViewById(R.id.bottleFillCheckBox);
 
-        // Get fountainID from intent
-        fountainID = getIntent().getStringExtra("fountainID");
-
         database = FirebaseDatabase.getInstance().getReference();
     }
 
     public void onClickRate(View view) {
+        // Initalize rating object
+        Rating rating = new Rating();
+        rating.setFountainID(getIntent().getStringExtra("fountainID"));
+
         // Get ratings
-        float tasteRating = tasteRatingBar.getRating();
-        float tempRating = tempRatingBar.getRating();
-        float pressRating = pressRatingBar.getRating();
+        rating.setTasteRating(tasteRatingBar.getRating());
+        rating.setTempRating(tempRatingBar.getRating());
+        rating.setPressRating(pressRatingBar.getRating());
 
         // Get bottle filler yes/no
-        boolean bottleFill = bottleFiller.isChecked();
+        rating.setBottleFill(bottleFiller.isChecked());
 
         // Create unique ratingID
-        ratingID = "rating_" + new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
+        rating.setRatingID("rating_" + new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date()));
 
         // Add ratings data to fountain being rated, using fountain ID collected from intent
-        database.child("fountains").child(fountainID).child("ratings").child(ratingID).child("taste").setValue(tasteRating);
-        database.child("fountains").child(fountainID).child("ratings").child(ratingID).child("temp").setValue(tempRating);
-        database.child("fountains").child(fountainID).child("ratings").child(ratingID).child("press").setValue(pressRating);
-        database.child("fountains").child(fountainID).child("ratings").child(ratingID).child("bottle").setValue(bottleFill);
+        database.child("fountains").child(rating.getFountainID()).child("ratings").child(rating.ratingID).child("taste").setValue(rating.getTasteRating());
+        database.child("fountains").child(rating.getFountainID()).child("ratings").child(rating.ratingID).child("temp").setValue(rating.getTempRating());
+        database.child("fountains").child(rating.getFountainID()).child("ratings").child(rating.ratingID).child("press").setValue(rating.getPressRating());
+        database.child("fountains").child(rating.getFountainID()).child("ratings").child(rating.ratingID).child("bottle").setValue(rating.isBottleFill());
 
         Toast.makeText(RateFountain.this, "Rating added!", Toast.LENGTH_SHORT).show();
         Intent goHome = new Intent(RateFountain.this, MainActivity.class);
