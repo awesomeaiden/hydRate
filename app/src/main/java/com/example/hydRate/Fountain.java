@@ -3,11 +3,11 @@ package com.example.hydRate;
 import com.google.android.gms.maps.model.LatLng;
 
 public class Fountain {
-    public LatLng location;
-    public String name;
-    public String picID;
+    private LatLng location;
+    private String name;
+    private String picID;
     private String ftnID;
-    String picPath;
+    private String picPath;
 
     public String getFtnID() {
         return ftnID;

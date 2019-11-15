@@ -54,6 +54,7 @@ public class FountainsFragment extends Fragment implements OnMapReadyCallback {
             mapview.onResume();
             mapview.getMapAsync(this);
         }
+
         FloatingActionButton ftnBtn = view.findViewById(R.id.addFtnBtn);
         ftnBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,27 +72,19 @@ public class FountainsFragment extends Fragment implements OnMapReadyCallback {
 
         // Get location and set camera to that location at default zoom
         setLocation(googleMap);
+
         // loadFountains in this area
         loadFountains(googleMap, database);
-
-        // When the visible area changes considerably and fountains should be loaded, reload them
-
-        // Mock markers
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(40.4259, -86.9081)).title("Purdue").snippet("Home of the Boilermakers"));
-        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(new LatLng(40.4259, -86.9081), 18, 0, 0)));
     }
 
-    public void loadFountains(final GoogleMap googleMap, final DatabaseReference database) {
+    private void loadFountains(final GoogleMap googleMap, final DatabaseReference database) {
         // Get fountains from the database in this area
         Query query = database.child("fountains").orderByChild("location/latitude");
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot fountain: dataSnapshot.getChildren()) {
-                    Fountain ftn = new Fountain();
-                    ftn.setName("Water Fountain");
-                    // Put fountains on the map
-                    ftn.setLocation(new LatLng(fountain.child("location").child("latitude").getValue(Double.class), fountain.child("location").child("longitude").getValue(Double.class)));
+                    Fountain ftn = createFountain(fountain);
                     googleMap.addMarker(new MarkerOptions().position(ftn.getLocation()).title(ftn.getName()));
                 }
             }
@@ -102,8 +95,22 @@ public class FountainsFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    public void setLocation(GoogleMap googleMap) {
+    private Fountain createFountain(DataSnapshot ftnData) {
+        Fountain ftn = new Fountain();
+        ftn.setFtnID(ftnData.getKey());
+        ftn.setName("Water Fountain");
+        if (ftnData.child("location").exists() && ftnData.child("location").child("latitude").exists() && ftnData.child("location").child("longitude").exists()) {
+            ftn.setLocation(new LatLng(ftnData.child("location").child("latitude").getValue(Double.class), ftnData.child("location").child("longitude").getValue(Double.class)));
+        }
+
+        ftn.setPicID(ftnData.child("picture").getValue(String.class));
+
+        return ftn;
+    }
+
+    private void setLocation(GoogleMap googleMap) {
         // Get user location
         // Set camera position to the user's location at the default zoom level
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(new LatLng(40.4259, -86.9081), 18, 0, 0))); // Dummy location
     }
 }

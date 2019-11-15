@@ -2,7 +2,7 @@ package com.example.hydRate;
 
 import com.google.firebase.auth.FirebaseUser;
 
-public class User {
+class User {
     private FirebaseUser firebaseUser;
 
     public FirebaseUser getFirebaseUser() {

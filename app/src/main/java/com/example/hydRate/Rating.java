@@ -1,12 +1,12 @@
 package com.example.hydRate;
 
-public class Rating {
-    String fountainID;
+class Rating {
+    private String fountainID;
     String ratingID;
-    float tasteRating;
-    float tempRating;
-    float pressRating;
-    boolean bottleFill;
+    private float tasteRating;
+    private float tempRating;
+    private float pressRating;
+    private boolean bottleFill;
 
     public String getFountainID() {
         return fountainID;

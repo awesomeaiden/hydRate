@@ -16,10 +16,10 @@ import java.util.Date;
 
 public class RateFountain extends AppCompatActivity {
 
-    RatingBar tasteRatingBar;
-    RatingBar tempRatingBar;
-    RatingBar pressRatingBar;
-    CheckBox bottleFiller;
+    private RatingBar tasteRatingBar;
+    private RatingBar tempRatingBar;
+    private RatingBar pressRatingBar;
+    private CheckBox bottleFiller;
     private DatabaseReference database;
 
     @Override

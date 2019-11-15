@@ -43,12 +43,12 @@ import java.util.Objects;
 public class CreateFountain extends AppCompatActivity implements OnMapReadyCallback {
 
     private ImageView ftnPic;
-    Bitmap ftnPicBitmap;
+    private Bitmap ftnPicBitmap;
     private String picPath;
     private int markerStatus;
-    public LatLng markerLocation;
-    public boolean picStatus;
-    static final int REQUEST_CODE = 100;
+    private LatLng markerLocation;
+    private boolean picStatus;
+    private static final int REQUEST_CODE = 100;
     private DatabaseReference database;
     private StorageReference storage;
 
@@ -76,7 +76,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
 
     public void onClickCreate(View view) {
         // Add fountain identifiers to database if picture and location are present
-        if ((markerLocation != null) && (picStatus == true)) {
+        if ((markerLocation != null) && (picStatus)) {
             // Create new fountain object
             Fountain ftn = new Fountain();
             // Create unique fountainID seeded by markerLocation
@@ -107,18 +107,18 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
             // Pop up dialog and ask if the user would like to rate the fountain they just added or not
             askRate(ftn.getFtnID());
         }
-        else if ((markerLocation == null) && (picStatus == false)) {
+        else if ((markerLocation == null) && (!picStatus)) {
             Toast.makeText(this, "Please take a picture of the fountain and set its location", Toast.LENGTH_LONG).show();
         }
         else if (markerLocation == null) {
             Toast.makeText(this, "Please set fountain location", Toast.LENGTH_LONG).show();
         }
-        else if (picStatus == false) {
+        else if (!picStatus) {
             Toast.makeText(this, "Please take a picture of the fountain", Toast.LENGTH_LONG).show();
         }
     }
 
-    public void askRate(final String fountainID) {
+    private void askRate(final String fountainID) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -166,7 +166,7 @@ public class CreateFountain extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
-    private void correctImageOrientation(File picFile) throws IOException {
+    private void correctImageOrientation(File picFile) {
         try {
             ExifInterface exif = new ExifInterface(picFile.getAbsolutePath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);

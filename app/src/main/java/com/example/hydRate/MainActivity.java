@@ -22,12 +22,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Fragment selectedFragment = new HomeFragment();
+            Fragment selectedFragment = new FountainsFragment();
 
             switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    selectedFragment = new HomeFragment();
-                    break;
+//                case R.id.navigation_home:
+//                    selectedFragment = new HomeFragment();
+//                    break;
                 case R.id.navigation_dashboard:
                     Toast.makeText(getBaseContext(), "Loading map...", Toast.LENGTH_SHORT).show();
                     selectedFragment = new FountainsFragment();
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new HomeFragment()).commit();
+                new FountainsFragment()).commit();
 
         // Initialize user
         FirebaseAuth fireauth = FirebaseAuth.getInstance();
